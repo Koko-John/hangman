@@ -134,17 +134,18 @@ class mainFrame:
             self.add_words_button.config(state = DISABLED)
             def correct(inp):
                 if inp == " ":
-                    print(inp)
+                    messagebox.showwarning("Error", "Spaces are not allowed")  
                     return False
                 elif inp == "":
                     print(inp)
                     return True
                 elif inp.isdigit():
-                    print(inp)
+                    messagebox.showwarning("Error", "Numbers are not allowed")  
                     return False
                 elif inp.isalpha():
                     return True
                 else:
+                    messagebox.showwarning("Error", "Special chracters are not allowed")  
                     return False
         
             reg = root.register(correct)
