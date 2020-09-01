@@ -59,7 +59,7 @@ class mainFrame:
         
           
         
-        self.change_theme_button = Button(self.how_to_frame, text = "Change Theme", font =('Century Gothic', 16), pady = 5, padx = 10)
+        self.change_theme_button = Button(self.how_to_frame, text = "How to play", font =('Century Gothic', 16), pady = 5, padx = 10)
         self.change_theme_button.grid(row=2, column=0)    
         
         self.Edit_words_button = Button(self.how_to_frame, text = "Edit words", font =('Century Gothic', 16), pady = 5, padx = 10)

@@ -52,12 +52,6 @@ class mainFrame:
         self.howToPlayButton.grid(row=3, column=1)                
 
 
-    def changeTheme(self):
-        global background
-        background = "#aec6cf"
-        self.parent.destroy
-        mainFrame(self)
-
     def HowToPlayFrame(self):
 
         self.howToPlayButton.config(state = DISABLED)
@@ -107,7 +101,15 @@ class mainFrame:
 
         self.edit_words_label3 = Label(self.words_edit_screen, text="", width = 10, font = ("Arial", "14", "bold"), bg = background)
         self.edit_words_label3.grid(row = 0, column = 2)        
-
+        
+        self.edit_words_label4 = Label(self.words_edit_screen, text="\nEdit: To edit an existing word, enter its id\n in the entry box\n and enter the updated value in the\n popup window. Press finished\nwhen done", width = 40, font = ("Arial", "10"), bg = background)
+        self.edit_words_label4.grid(row = 1, column = 2)            
+        
+        self.edit_words_label5 = Label(self.words_edit_screen, text="\nDelete: Enter the Id into the entry box\n and then click delete", width = 40, font = ("Arial", "10"), bg = background)
+        self.edit_words_label5.grid(row = 2, column = 2)  
+        
+        self.edit_words_label6 = Label(self.words_edit_screen, text="\nAdd: Enter the word into the entry box\n and then click add", width = 40, font = ("Arial", "10"), bg = background)
+        self.edit_words_label6.grid(row = 3, column = 2)         
         #MADE THIS SO THE SCREEN REFRESHES
         def refresh_words():
             self.words_edit_screen.destroy()
@@ -142,6 +144,7 @@ class mainFrame:
         def edit_words_button_action():
             self.edit_words_button_frame = Toplevel(pady = 10, bg= background)
             self.edit_words_button_frame.grid()  
+            self.edit_words_button.config(state = DISABLED)
 
             self.edit_words_button_entry = Entry(self.edit_words_button_frame, font =('Century Gothic', 16))
             self.edit_words_button_entry.grid(row=0, column=1)              
@@ -149,6 +152,7 @@ class mainFrame:
             editWordsInput = self.edit_words_entry.get()
 
             def edit_them():
+                
                 thenewvalue = self.edit_words_button_entry.get()
                 try:
                     db_conn.execute("UPDATE hangmanTb SET name = ? WHERE ID = ?",(thenewvalue,editWordsInput,))
@@ -156,9 +160,10 @@ class mainFrame:
 
                     refresh_words()
                     self.edit_words_button_frame.destroy()
+                    self.edit_words_button.config(state = NORMAL)
                 except sqlite3.OperationalError:
                     messagebox.showinfo("Oh no", "It didnt work")
-            self.edit_value_button = Button(self.edit_words_button_frame, text = "Edit words", font =('Century Gothic', 16), pady = 5, padx = 10, command = edit_them)
+            self.edit_value_button = Button(self.edit_words_button_frame, text = "Finished", font =('Century Gothic', 16), pady = 5, padx = 10, command = edit_them)
             self.edit_value_button.grid(row=0, column=2)                  
         def delete_words_button_action():
             try:
