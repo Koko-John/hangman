@@ -1,3 +1,4 @@
+
 from functools import partial #To prevent unwanted windows
 from tkinter import *
 from tkinter import messagebox
@@ -21,18 +22,26 @@ foreground = "#FAF0E4"
 the_cursor = db_conn.cursor()
 
 
-the_cursor.execute("CREATE TABLE IF NOT EXISTS hangManTB(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT);")
+the_cursor.execute(
+"CREATE TABLE IF NOT EXISTS hangmanDB(ID INTEGER PRIMARY KEY  NOT NULL, name TEXT PRIMARY KEY NOT NULL );")
 db_conn.commit() 
-print("hangManTB Table has created")
+print("hangmanDB Table has created")
 class mainFrame:
     def __init__(self, parent):
         global background
         self.parent = parent
         
+        word1= "hangman"
+        word2= "fleur"
+        word3= "John"
+        
         #starter words for the game
-        insert_Value('Hangman') 
-        insert_Value('Fleur') 
-        insert_Value('John') 
+        db_conn.execute("INSERT OR REPLACE INTO hangmanDB(name) VALUES (?)", (word1,))
+        db_conn.commit()
+        db_conn.execute("INSERT OR REPLACE INTO hangmanDB(name) VALUES (?)", (word2,))
+        db_conn.commit()
+        db_conn.execute("INSERT OR REPLACE INTO hangmanDB(name) VALUES (?)", (word3,))
+        db_conn.commit()
 
         #Am making the window
         self.main_frame = Frame(bg = background, pady = 50, padx = 20)
@@ -79,7 +88,7 @@ class mainFrame:
         #Put history button back to normal...
         self.howToPlayButton.config(state = NORMAL)
         self.how_to_frame.destroy() 
-  
+
     def close_main(self):
 
 
@@ -89,10 +98,10 @@ class mainFrame:
         MainGame()
 
     #making the edit words screen    
-            
+
     def edit_words(self):#arema ###################################################################################################
         self.EditButton.config(state = DISABLED)
-        
+
         self.words_edit_screen= Toplevel(pady = 10, bg= background)
         self.words_edit_screen.grid()   
 
@@ -104,13 +113,13 @@ class mainFrame:
 
         self.edit_words_label3 = Label(self.words_edit_screen, text="", width = 10, font = ("Arial", "14", "bold"), bg = background)
         self.edit_words_label3.grid(row = 0, column = 2)        
-        
+
         self.edit_words_label4 = Label(self.words_edit_screen, text="\nEdit: To edit an existing word, enter its id\n in the entry box\n and enter the updated value in the\n popup window. Press finished\nwhen done", width = 40, font = ("Arial", "10"), bg = background)
         self.edit_words_label4.grid(row = 1, column = 2)            
-        
+
         self.edit_words_label5 = Label(self.words_edit_screen, text="\nDelete: Enter the Id into the entry box\n and then click delete", width = 40, font = ("Arial", "10"), bg = background)
         self.edit_words_label5.grid(row = 2, column = 2)  
-        
+
         self.edit_words_label6 = Label(self.words_edit_screen, text="\nAdd: Enter the word into the entry box\n and then click add", width = 40, font = ("Arial", "10"), bg = background)
         self.edit_words_label6.grid(row = 3, column = 2)         
         #MADE THIS SO THE SCREEN REFRESHES
@@ -120,7 +129,7 @@ class mainFrame:
         with db_conn:
             db_conn.row_factory = sqlite3.Row
             the_cursor = db_conn.cursor()
-            the_cursor.execute("SELECT * FROM hangManTB")
+            the_cursor.execute("SELECT * FROM hangManTable")
             rows = the_cursor.fetchall()
             rowcounter = 1
             for row in rows:
@@ -150,27 +159,27 @@ class mainFrame:
                 else:
                     messagebox.showwarning("Error", "Special chracters are not allowed")  
                     return False
-        
+
             reg = root.register(correct)
-            
+
             global userInput
             self.newWordsList = []
             self.userInput =""
             self.new_words = Entry(self.adding_words_button_frame, font =('Century Gothic', 16))
             self.new_words.grid(row=0, column=1)              
-            
+
             self.new_words.config(validate="key", validatecommand=(reg, '%P'))
             def enter_new_word_db():
                 userInput = self.new_words.get() #get word from form
                 insert_Value(userInput)    
-                
+
                 refresh_words()    
                 self.adding_words_button_frame.destroy()
             self.adding_words_button_frame.protocol('WM_DELETE_WINDOW', partial(self.close_add_words))
             self.new_word_button = Button(self.adding_words_button_frame, text = "Add", font =('Century Gothic', 16), pady = 5, padx = 10, command = enter_new_word_db)
             self.new_word_button.grid(row=0, column=2)          
-            
-            
+
+
 
 
 
@@ -184,10 +193,10 @@ class mainFrame:
             editWordsInput = self.edit_words_entry.get()
 
             def edit_them():
-                
+
                 thenewvalue = self.edit_words_button_entry.get()
                 try:
-                    db_conn.execute("UPDATE hangmanTb SET name = ? WHERE ID = ?",(thenewvalue,editWordsInput,))
+                    db_conn.execute("UPDATE hangManTable SET name = ? WHERE ID = ?",(thenewvalue,editWordsInput,))
                     db_conn.commit()
 
                     refresh_words()
@@ -195,25 +204,25 @@ class mainFrame:
                     self.edit_words_button.config(state = NORMAL)
                 except sqlite3.OperationalError:
                     messagebox.showinfo("Oh no", "It didnt work")
-            
+
             self.edit_value_button = Button(self.edit_words_button_frame, text = "Finished", font =('Century Gothic', 16), pady = 5, padx = 10, command = edit_them)
             self.edit_value_button.grid(row=0, column=2)    
             self.edit_words_button_frame.protocol('WM_DELETE_WINDOW', partial(self.close_edit_words))
         def delete_words_button_action():
             try:
                 editWordsInput = self.edit_words_entry.get()
-                db_conn.execute("DELETE FROM hangmanTB WHERE ID = ?",(editWordsInput,))
+                db_conn.execute("DELETE FROM hangManTable WHERE ID = ?",(editWordsInput,))
                 db_conn.commit()
                 refresh_words()
-                
+
             except sqlite3.OperationalError:
                 messagebox.showinfo("Oh no", "It didnt work")
-       
-        
+
+
         self.edit_words_entry = Entry(self.words_edit_screen, font =('Century Gothic', 16), text="test", )
         self.edit_words_entry.grid(row=900, column=2)    
-        
-        
+
+
 
         self.edit_words_button = Button(self.words_edit_screen, text = "Edit words", font =('Century Gothic', 16), pady = 5, padx = 10, command = edit_words_button_action)
         self.edit_words_button.grid(row=901, column=1)            
@@ -248,7 +257,7 @@ def insert_Value(koko):
     # To insert data into a table we use INSERT INTO
     # followed by the table name and the item name
     # and the data to assign to those items
-    db_conn.execute("INSERT INTO hangManTB(name) VALUES (?)",(koko,))
+    db_conn.execute("INSERT INTO hangManTable(name) VALUES (?)",(koko,))
     db_conn.commit()
     print("Your word has successfuly Entered")    
 
@@ -258,68 +267,68 @@ def insert_Value(koko):
 
 
     #def insertWords(self):
-        #filename = "words.txt"
+                    #filename = "words.txt"
 
-        ##open file to hold data
-        #f = open(filename, "a")
-        #print(self.newWordsList)
-        ##Add a comma after each item.
-        #for item in self.newWordsList:
-            #f.write(item + ",")
+                    ##open file to hold data
+                    #f = open(filename, "a")
+                    #print(self.newWordsList)
+                    ##Add a comma after each item.
+                    #for item in self.newWordsList:
+                                    #f.write(item + ",")
 
 
-        #close file
-        #f.close()
+                    #close file
+                    #f.close()
 class MainGame:
     def __init__(self):
         #setting up game frame.
-  
+
         self.game_frame= Frame(pady = 10, bg= background)
         self.game_frame.grid()
         global word_list
         global lblWord
-            
+
         #photos for the hangman pic
         global photos
         photos = [PhotoImage(file="hang0.png"), PhotoImage(file="hang1.png"), PhotoImage(file="hang2.png"), PhotoImage(file="hang3.png"),
                   PhotoImage(file="hang4.png"), PhotoImage(file="hang5.png"), PhotoImage(file="hang6.png"), PhotoImage(file="hang7.png"),
                   PhotoImage(file="hang8.png"), PhotoImage(file="hang9.png"), PhotoImage(file="hang10.png"), PhotoImage(file="hang11.png")]
-        
+
         #Creates the start photo 
         self.imgLabel=Label(self.game_frame)
         self.imgLabel.grid(row=0, column=0, columnspan=3, padx=10, pady=40)
         self.imgLabel.config(image=photos[0])
-        
-      
-        
+
+
+
         with db_conn:
             db_conn.row_factory = sqlite3.Row
             the_cursor = db_conn.cursor()
-            the_cursor.execute("SELECT * FROM hangManTB")
+            the_cursor.execute("SELECT * FROM hangManTable")
             rows = the_cursor.fetchall()
             rowcounter = 1
             word_list = []
             for row in rows:
-                
+
                 rowthing = ("{}".format(row["name"]))  
                 word_list.append(rowthing)    
             print(word_list)
-            
+
             #Makes all the letters uppercase in the program
         word_list = [x.upper() for x in word_list] 
         print(word_list)  
-        
+
         #Creates the letters at the top
         lblWord=StringVar()
         self.theWord = Label(self.game_frame, textvariable=lblWord, font=("Consolas 24 bold")).grid(row=0, column=3, columnspan=6, padx=10)
-        
-                   
+
+
         #Make the letter buttons
         n=0
         for c in ascii_uppercase:
             self.theLetters = Button(self.game_frame, text=c, command=lambda c=c: self.guess(c), font=("Helvetica 18"), width=4).grid(row=1+n//9, column=n%9)
             n+=1    
-        
+
         #Makes the letters at the top turn into underscores if not guessed yet
         global the_word_withSpaces
         global numberOfGuesses
@@ -358,3 +367,4 @@ if __name__ == "__main__":
     root.title("Fleur")
     something = mainFrame(root)
     root.mainloop()
+
