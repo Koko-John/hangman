@@ -349,6 +349,7 @@ class MainGame:
                 if numberOfGuesses==11:
                     messagebox.showwarning("Fleur", "GameOver")     
     def close_game(self):
+        self.restart_frame.destroy()
         self.game_frame.destroy()  
         MainGame()     
 #this code is just testing. will connect the game and main components in the final version
