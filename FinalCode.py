@@ -74,10 +74,18 @@ class mainFrame:
 
 
         #Set up heading of the how to box frame
-        self.help_heading = Label(self.how_to_frame, text = "Settings",
-                                  font = ("Lottes Handwriting", 60, "bold"),
-                                  bg = background, fg = foreground)    
+        self.help_heading = Label(self.how_to_frame, text = "How to play",
+                                  font = ("Lottes Handwriting", 30, "bold"),
+                                  bg = background, fg =foreground)    
         self.help_heading.grid(row=1)
+        
+        self.help_heading = Label(self.how_to_frame, text = "The underscores represent"\
+                                  "\nthe number of letters in the word.\n Press the"\
+                                  "buttons to guess",
+                                  font = ("Century Gothic", 20),
+                                  bg = background, )    
+        self.help_heading.grid(row=2)
+        
 
         self.how_to_frame.protocol('WM_DELETE_WINDOW', partial(self.close_HowTo))
 
@@ -143,14 +151,16 @@ class mainFrame:
         def adding_words_button_action():
             self.adding_words_button_frame = Toplevel(pady = 10, bg= background)
             self.adding_words_button_frame.grid()  
-            self.add_words_button.config(state = DISABLED)
+            self.edit_words_button.config(state = DISABLED)
+            self.delete_words_button.config(state= DISABLED)
+            self.add_words_button.config(state= DISABLED)            
             def correct(inp):
                 if inp == " ":
                     messagebox.showwarning("Error", "Spaces are not allowed")  
                     return False
                 elif inp == "":
                     print(inp)
-                    return True
+                    return False
                 elif inp.isdigit():
                     messagebox.showwarning("Error", "Numbers are not allowed")  
                     return False
@@ -171,13 +181,23 @@ class mainFrame:
             self.new_words.config(validate="key", validatecommand=(reg, '%P'))
             def enter_new_word_db():
                 userInput = self.new_words.get() #get word from form
-                insert_Value(userInput)    
-
-                refresh_words()    
-                self.adding_words_button_frame.destroy()
+                    
+                if len(userInput)== 0:
+                    messagebox.showwarning("Error", "empty words are not allowed") 
+                    refresh_words()
+                    self.adding_words_button_frame.destroy()
+                else:
+                    insert_Value(userInput) 
+                    refresh_words()    
+                    self.adding_words_button_frame.destroy()                                
+                
             self.adding_words_button_frame.protocol('WM_DELETE_WINDOW', partial(self.close_add_words))
+            
             self.new_word_button = Button(self.adding_words_button_frame, text = "Add", font =('Century Gothic', 16), pady = 5, padx = 10, command = enter_new_word_db)
-            self.new_word_button.grid(row=0, column=2)          
+            self.new_word_button.grid(row=0, column=2)  
+            
+            
+        
 
 
 
@@ -187,6 +207,8 @@ class mainFrame:
             self.edit_words_button_frame = Toplevel(pady = 10, bg= background)
             self.edit_words_button_frame.grid()  
             self.edit_words_button.config(state = DISABLED)
+            self.delete_words_button.config(state= DISABLED)
+            self.add_words_button.config(state= DISABLED)
 
             self.edit_words_button_entry = Entry(self.edit_words_button_frame, font =('Century Gothic', 16))
             self.edit_words_button_entry.grid(row=0, column=1)              
@@ -195,15 +217,19 @@ class mainFrame:
             def edit_them():
 
                 thenewvalue = self.edit_words_button_entry.get()
-                try:
-                    db_conn.execute("UPDATE hangManTable SET name = ? WHERE ID = ?",(thenewvalue,editWordsInput,))
-                    db_conn.commit()
-
+                if len(thenewvalue)== 0:
+                    messagebox.showwarning("Error", "empty words are not allowed") 
                     refresh_words()
                     self.edit_words_button_frame.destroy()
-                    self.edit_words_button.config(state = NORMAL)
-                except sqlite3.OperationalError:
-                    messagebox.showinfo("Oh no", "It didnt work")
+                    self.edit_words_button.config(state = NORMAL)  
+                else:
+                    db_conn.execute("UPDATE hangManTable SET name = ? WHERE ID = ?",(thenewvalue,editWordsInput,))
+                    db_conn.commit()
+                    refresh_words()    
+                    self.edit_words_button_frame.destroy()
+                    self.edit_words_button.config(state = NORMAL)                 
+                
+
 
             self.edit_value_button = Button(self.edit_words_button_frame, text = "Finished", font =('Century Gothic', 16), pady = 5, padx = 10, command = edit_them)
             self.edit_value_button.grid(row=0, column=2)    
@@ -237,12 +263,17 @@ class mainFrame:
 
     def close_Settings(self):
         self.EditButton.config(state = NORMAL)
+               
         self.words_edit_screen.destroy() 
     def close_add_words(self):
-        self.add_words_button.config(state = NORMAL)
+        self.edit_words_button.config(state = NORMAL)
+        self.delete_words_button.config(state= NORMAL)
+        self.add_words_button.config(state= NORMAL)
         self.adding_words_button_frame.destroy()   
     def close_edit_words(self):
         self.edit_words_button.config(state = NORMAL)
+        self.delete_words_button.config(state= NORMAL)
+        self.add_words_button.config(state= NORMAL)
         self.edit_words_button_frame.destroy()           
         #THIS IS HOW THE AUTO INCREMENT INSERT WORKS
 #def insert_Value(koko):
@@ -257,7 +288,7 @@ def insert_Value(koko):
     # To insert data into a table we use INSERT INTO
     # followed by the table name and the item name
     # and the data to assign to those items
-    db_conn.execute("INSERT INTO hangManTable(name) VALUES (?)",(koko,))
+    db_conn.execute("INSERT OR REPLACE INTO hangManTable(name) VALUES (?)",(koko,))
     db_conn.commit()
     print("Your word has successfuly Entered")    
 
