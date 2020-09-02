@@ -12,7 +12,7 @@ foreground = "#FAF0E4"
 
 
 #Connecting to database
-db_conn = sqlite3.connect('HangMan.db')
+db_conn = sqlite3.connect('hangingGame.db')
 print("Database Created")
 
 background = "#EECFBB"
@@ -22,8 +22,10 @@ foreground = "#FAF0E4"
 the_cursor = db_conn.cursor()
 
 
-the_cursor.execute(
-"CREATE TABLE IF NOT EXISTS hangmanDB(ID INTEGER PRIMARY KEY  NOT NULL, name TEXT PRIMARY KEY NOT NULL );")
+the_cursor.execute("""
+    CREATE TABLE IF NOT EXISTS 
+    hangingGame(ID INTEGER 
+    NOT NULL, name TEXT PRIMARY KEY NOT NULL );""")
 db_conn.commit() 
 print("hangmanDB Table has created")
 class mainFrame:
@@ -36,12 +38,6 @@ class mainFrame:
         word3= "John"
         
         #starter words for the game
-        db_conn.execute("INSERT OR REPLACE INTO hangmanDB(name) VALUES (?)", (word1,))
-        db_conn.commit()
-        db_conn.execute("INSERT OR REPLACE INTO hangmanDB(name) VALUES (?)", (word2,))
-        db_conn.commit()
-        db_conn.execute("INSERT OR REPLACE INTO hangmanDB(name) VALUES (?)", (word3,))
-        db_conn.commit()
 
         #Am making the window
         self.main_frame = Frame(bg = background, pady = 50, padx = 20)
@@ -117,18 +113,41 @@ class mainFrame:
         self.edit_words_label.grid(row = 0, column = 1)
 
         self.edit_words_label2 = Label(self.words_edit_screen, text="Word", width = 10, font = ("Arial", "14", "bold"), bg = background)
-        self.edit_words_label2.grid(row = 0, column = 3)        
+        self.edit_words_label2.grid(row = 0, column = 3)    
+        
+        self.edit_words_label9 = Label(self.words_edit_screen, text="default", width = 10, font =('Century Gothic', 16), bg = background)
+        self.edit_words_label9.grid(row = 1, column = 1) 
+        
+        self.edit_words_label10 = Label(self.words_edit_screen, text="default", width = 10, font =('Century Gothic', 16), bg = background)
+        self.edit_words_label10.grid(row = 2, column = 1) 
+        
+        self.edit_words_label11 = Label(self.words_edit_screen, text="default", width = 10, font =('Century Gothic', 16), bg = background)
+        self.edit_words_label11.grid(row = 3, column = 1)            
+        
+        self.edit_words_label7 = Label(self.words_edit_screen, text="Hangman", width = 10, font =('Century Gothic', 16), bg = background)
+        self.edit_words_label7.grid(row = 1, column = 3)     
+        
+        self.edit_words_label8 = Label(self.words_edit_screen, text="Fleur", width = 10, font =('Century Gothic', 16), bg = background)
+        self.edit_words_label8.grid(row = 2, column = 3)       
+        
+        self.edit_words_label12 = Label(self.words_edit_screen, text="Game", width = 10, font =('Century Gothic', 16), bg = background)
+        self.edit_words_label12.grid(row = 3, column = 3)            
+        
 
         self.edit_words_label3 = Label(self.words_edit_screen, text="", width = 10, font = ("Arial", "14", "bold"), bg = background)
         self.edit_words_label3.grid(row = 0, column = 2)        
 
-        self.edit_words_label4 = Label(self.words_edit_screen, text="\nEdit: To edit an existing word, enter its id\n in the entry box\n and enter the updated value in the\n popup window. Press finished\nwhen done", width = 40, font = ("Arial", "10"), bg = background)
+        self.edit_words_label4 = Label(self.words_edit_screen, text="\nEdit: To edit an existing word, enter its id\n in the entry box\n"\
+                                       "and enter the updated value in the\n popup window. Press finished\n"\
+                                       "when done", width = 40, font = ("Arial", "10"), bg = background)
         self.edit_words_label4.grid(row = 1, column = 2)            
 
-        self.edit_words_label5 = Label(self.words_edit_screen, text="\nDelete: Enter the Id into the entry box\n and then click delete", width = 40, font = ("Arial", "10"), bg = background)
+        self.edit_words_label5 = Label(self.words_edit_screen, text="\nDelete: Enter the Id into the entry box\n"\
+                                       "and then click delete", width = 40, font = ("Arial", "10"), bg = background)
         self.edit_words_label5.grid(row = 2, column = 2)  
 
-        self.edit_words_label6 = Label(self.words_edit_screen, text="\nAdd: Enter the word into the entry box\n and then click add", width = 40, font = ("Arial", "10"), bg = background)
+        self.edit_words_label6 = Label(self.words_edit_screen, text="\nAdd: Enter the word into the entry box\n"\
+                                       "and then click add", width = 40, font = ("Arial", "10"), bg = background)
         self.edit_words_label6.grid(row = 3, column = 2)         
         #MADE THIS SO THE SCREEN REFRESHES
         def refresh_words():
@@ -137,16 +156,16 @@ class mainFrame:
         with db_conn:
             db_conn.row_factory = sqlite3.Row
             the_cursor = db_conn.cursor()
-            the_cursor.execute("SELECT * FROM hangManTable")
+            the_cursor.execute("SELECT * FROM hangingGame")
             rows = the_cursor.fetchall()
-            rowcounter = 1
+            rowcounter = 4
             for row in rows:
 
-                rowthing = ("{}".format(row["name"]))  
-                idrowthing = ("{}".format( row["ID"]))
+                _rowthing = ("{}".format(row["name"]))  
+                _idrowthing = ("{}".format( row["ID"]))
 
-                Label(self.words_edit_screen, text=idrowthing, width = 10, font =('Century Gothic', 16), bg= background).grid(row=rowcounter, column=1)
-                Label(self.words_edit_screen, text=rowthing, width = 10,font =('Century Gothic', 16), bg = background).grid(row=rowcounter, column=3)
+                Label(self.words_edit_screen, text=_idrowthing, width = 10, font =('Century Gothic', 16), bg= background).grid(row=rowcounter, column=1)
+                Label(self.words_edit_screen, text=_rowthing, width = 10,font =('Century Gothic', 16), bg = background).grid(row=rowcounter, column=3)
                 rowcounter+=1   
         def adding_words_button_action():
             self.adding_words_button_frame = Toplevel(pady = 10, bg= background)
@@ -210,8 +229,27 @@ class mainFrame:
             self.delete_words_button.config(state= DISABLED)
             self.add_words_button.config(state= DISABLED)
 
+            def correct(inp):
+                if inp == " ":
+                    messagebox.showwarning("Error", "Spaces are not allowed")  
+                    return False
+                elif inp == "":
+                    print(inp)
+                    return False
+                elif inp.isdigit():
+                    messagebox.showwarning("Error", "Numbers are not allowed")  
+                    return False
+                elif inp.isalpha():
+                    return True
+                else:
+                    messagebox.showwarning("Error", "Special chracters are not allowed")  
+                    return False
+
+            reg = root.register(correct)   
             self.edit_words_button_entry = Entry(self.edit_words_button_frame, font =('Century Gothic', 16))
-            self.edit_words_button_entry.grid(row=0, column=1)              
+            self.edit_words_button_entry.grid(row=0, column=1)
+            
+            self.edit_words_button_entry.config(validate="key", validatecommand=(reg, '%P'))
             editWordsInput = self.edit_words_entry.get()
 
             def edit_them():
@@ -223,21 +261,21 @@ class mainFrame:
                     self.edit_words_button_frame.destroy()
                     self.edit_words_button.config(state = NORMAL)  
                 else:
-                    db_conn.execute("UPDATE hangManTable SET name = ? WHERE ID = ?",(thenewvalue,editWordsInput,))
+                    db_conn.execute("UPDATE hangingGame SET name = ? WHERE ID = ?",(thenewvalue,editWordsInput,))
                     db_conn.commit()
                     refresh_words()    
                     self.edit_words_button_frame.destroy()
                     self.edit_words_button.config(state = NORMAL)                 
                 
 
-
+                             
             self.edit_value_button = Button(self.edit_words_button_frame, text = "Finished", font =('Century Gothic', 16), pady = 5, padx = 10, command = edit_them)
             self.edit_value_button.grid(row=0, column=2)    
             self.edit_words_button_frame.protocol('WM_DELETE_WINDOW', partial(self.close_edit_words))
         def delete_words_button_action():
             try:
                 editWordsInput = self.edit_words_entry.get()
-                db_conn.execute("DELETE FROM hangManTable WHERE ID = ?",(editWordsInput,))
+                db_conn.execute("DELETE FROM hangingGame WHERE ID = ?",(editWordsInput,))
                 db_conn.commit()
                 refresh_words()
 
@@ -288,7 +326,7 @@ def insert_Value(koko):
     # To insert data into a table we use INSERT INTO
     # followed by the table name and the item name
     # and the data to assign to those items
-    db_conn.execute("INSERT OR REPLACE INTO hangManTable(name) VALUES (?)",(koko,))
+    db_conn.execute("INSERT OR REPLACE INTO hangingGame(name) VALUES (?)",(koko,))
     db_conn.commit()
     print("Your word has successfuly Entered")    
 
@@ -335,14 +373,14 @@ class MainGame:
         with db_conn:
             db_conn.row_factory = sqlite3.Row
             the_cursor = db_conn.cursor()
-            the_cursor.execute("SELECT * FROM hangManTable")
+            the_cursor.execute("SELECT * FROM hangingGame")
             rows = the_cursor.fetchall()
             rowcounter = 1
-            word_list = []
+            word_list = ['hangman','fleur', 'game']
             for row in rows:
 
-                rowthing = ("{}".format(row["name"]))  
-                word_list.append(rowthing)    
+                _rowthing = ("{}".format(row["name"]))  
+                word_list.append(_rowthing)    
             print(word_list)
 
             #Makes all the letters uppercase in the program
